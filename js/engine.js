@@ -90,8 +90,9 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        allEnemies.forEach(function(enemy) {
+        allEnemies.every(function(enemy) {
             enemy.update(dt);
+            return (checkCollisions(enemy.x,enemy.y,enemy.delta) == false)
         });
         player.update();
     }
@@ -162,6 +163,21 @@ var Engine = (function(global) {
      */
     function reset() {
         // noop
+    }
+
+    /* This function checks the collision between enemies and player,
+    * if collision is detected, player lose the game and its score is reset,
+    * or if a collision is not detected it returns true in order to work with
+    * "every" loop.
+     */
+    function checkCollisions(enemy_x,enemy_y,delta){
+      if((player.x > enemy_x - delta) && (player.x < enemy_x + delta) &&
+         (player.y > enemy_y - delta) && (player.y < enemy_y + delta)) {
+           //collision detected
+           player.loseGame = true;
+           return true;
+         }
+      return false;
     }
 
     /* Go ahead and load all of the images we know we're going to need to

@@ -1,5 +1,20 @@
+//creates a superclass character to inherent from enemy and player class
+function Character(){
+  this.x = 0;
+  this.y = 0;
+  this.sprite = '';
+}
+
+// creates a common render function to be used in superclass character
+Character.prototype.render = function(){
+  ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
 // Enemies our player must avoid
 var Enemy = function(x_0 = 0, lane = 0, speed = 50) {
+    //call superclass
+    Character.call(this);
+
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
 
@@ -12,6 +27,12 @@ var Enemy = function(x_0 = 0, lane = 0, speed = 50) {
     this.delta = 70;
 };
 
+// inherit from character
+Enemy.prototype = new Character();
+
+// fix constructor pointer to Enemy
+Enemy.prototype.constructor = Enemy;
+
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
@@ -21,23 +42,15 @@ Enemy.prototype.update = function(dt) {
     this.x += this.speed*dt;
     if(this.x > window.innerWidth)
       this.x = 0;
-    //handles collision
-    if((player.x > this.x - this.delta) && (player.x < this.x + this.delta) &&
-       (player.y > this.y - this.delta) && (player.y < this.y + this.delta)) {
-         //collision detected
-         player.loseGame = true;
-       }
-};
-
-// Draw the enemy on the screen, required method for game
-Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
+  //call superclass
+  Character.call(this);
+
   //load image
   this.images = ['images/char-pink-girl.png','images/char-horn-girl.png',
                  'images/char-boy.png','images/char-princess-girl.png',
@@ -56,24 +69,32 @@ var Player = function() {
   this.resetGame = false;
   this.loseGame = false;
   this.resetCount = 0;
+  //creates a variable to store palyers score
+  this.score = 0;
 
   //defines delta movement in pixels
   this.dx = 100;
   this.dy = 83;
 };
 
+// inherit from character
+Player.prototype = new Character();
+
+// fix constructor pointer to Player
+Player.prototype.constructor = Player;
+
 Player.prototype.update = function(dt) {
   if(this.resetGame == false){
     // not set to reset game
     if(this.loseGame == true){
       // check if palyer has lost the game and set its score to zero
-      score = 0;
-      document.getElementById('score').innerHTML = 'Player score: ' + score;
+      this.score = 0;
+      document.getElementById('score').innerHTML = 'Player score: ' + this.score;
       this.resetGame = true;
     } else if(this.winGame == true){
       // check if player has won the game and increment its score
-      score++;
-      document.getElementById('score').innerHTML = 'Player score: ' + score;
+      this.score++;
+      document.getElementById('score').innerHTML = 'Player score: ' + this.score;
       this.resetGame = true;
     } else {
       // normal cycle of update players position
@@ -99,10 +120,6 @@ Player.prototype.update = function(dt) {
     }
   }
 
-};
-
-Player.prototype.render = function(){
-    ctx.drawImage(Resources.get(this.sprite),this.x,this.y);
 };
 
 Player.prototype.handleInput = function(key){
@@ -154,9 +171,6 @@ var allEnemies = [ new Enemy(0,0,100), new Enemy(200,0,100), new Enemy(0,1,50),
                    new Enemy(0,2,200), new Enemy(0,2,400) ];
 // Place the player object in a variable called player
 var player = new Player();
-
-//creates a score variable for the player
-var score = 0;
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
